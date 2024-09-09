@@ -9,7 +9,8 @@ engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-def get_db_session():
+
+def get_db_session(): #to be used to get a database session 
     session = SessionLocal()
     try:
         yield session
@@ -21,4 +22,5 @@ def get_db_session():
         session.close()
 
 def init_db():
-    Base.metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=engine) #create all tables
+
