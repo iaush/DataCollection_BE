@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
+from typing import Optional
 from src.database.database import SessionLocal, init_db, get_db_session
 from src.models.user import User
 from src.services.loginService import hash_password, verify_password
@@ -14,7 +15,14 @@ app = FastAPI()
 class UserCreate(BaseModel):
     email: str
     password: str
+    contact_num : Optional[int] = None
+    company : Optional[str] = None
+    name : Optional[str] = None
+    is_member : Optional[bool] = False
+    role : Optional[str] = None
 
+    class Config:
+        orm_mode = True
 class LoginRequest(BaseModel):
     email: str
     password: str
@@ -53,6 +61,12 @@ def register_user(user: UserCreate, db: Session = Depends(get_db_session)):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
+
+    try:
+        send_email(user_data = new_user)
+    except HTTPException as e:
+        print(f"Error sending email: {e.detail}")
+
     return {"msg": "User registered successfully", "email": user.email}
 
 @app.post("/login/")

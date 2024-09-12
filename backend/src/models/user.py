@@ -13,3 +13,14 @@ class User(Base):
     name = Column(String(255), nullable=True)
     is_member = Column(Boolean, nullable=True)
     role = Column(String(50), nullable=True)
+
+    def to_dict(self):
+        return{
+            "id": self.id,
+            "email": self.email,
+            "contact_num": self.contact_num,
+            "company": self.company,
+            "name": self.name,
+            "is_member": self.is_member,
+            "role": self.role
+        }
