@@ -2,14 +2,14 @@ import bcrypt
 import jwt
 import datetime
 from src.models.user import User
-from fastapi import HTTPException, Depends
+from fastapi import HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordBearer
 
 
 SECRET_KEY = "EDB_Sept2024"
 ALGORITHM = "HS256"
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
 
 def hash_password(password: str):
     salt = bcrypt.gensalt()
@@ -19,7 +19,7 @@ def verify_password(password: str, hashed_password: str):
     return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
 
 def create_jwt_token(email: str):
-    expire = datetime.datetime.now() + datetime.timedelta(hours=4)  # Default expiration time
+    expire = datetime.datetime.utcnow() + datetime.timedelta(hours=4)  # Default expiration time
     to_encode = {"exp": expire, "sub": email}
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -33,5 +33,13 @@ def decode_jwt_token(token: str):
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
     
-def get_current_user(token: str = Depends(oauth2_scheme)):
-    return decode_jwt_token(token)
+def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
+    print(token)
+    try:
+        payload = decode_jwt_token(token)
+        email = payload.get("sub")
+        if email is None:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authentication credentials")
+        return email
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError) as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))

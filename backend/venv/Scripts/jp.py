@@ -1,4 +1,4 @@
-#!C:\Users\Chanwyr\Documents\SIS\EDB_SWE\EDB_SWE\backend\venv\Scripts\python.exe
+#!C:\Users\ryanc\Downloads\EDB_SWE\backend\venv\Scripts\python.exe
 
 import sys
 import json
