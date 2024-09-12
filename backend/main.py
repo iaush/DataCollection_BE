@@ -4,13 +4,14 @@ from pydantic import BaseModel
 from typing import Optional
 from src.database.database import SessionLocal, init_db, get_db_session
 from src.models.user import User
-from src.services.loginService import hash_password, verify_password
+from src.services.loginService import hash_password, verify_password, create_jwt_token, get_current_user
 from src.services.emailService import send_email
 from dotenv import load_dotenv
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 
 app = FastAPI()
-
+# security = HTTPBearer()
 
 class UserCreate(BaseModel):
     email: str
@@ -21,15 +22,15 @@ class UserCreate(BaseModel):
     is_member : Optional[bool] = False
     role : Optional[str] = None
 
-    class Config:
-        orm_mode = True
+    # class Config:
+    #     orm_mode = True
 class LoginRequest(BaseModel):
     email: str
     password: str
 
-@app.get("/email")
+@app.get("/email_test")
 def test():
-    send_email(send_to="ryanchanenator@gmail.com")
+    send_email()
     return 
     
 
@@ -43,8 +44,8 @@ def init_database():
     
 
 
-@app.get("/users/")
-def get_users(db: Session = Depends(get_db_session)):
+@app.get("/get_users/")
+def get_users(db: Session = Depends(get_db_session), current_user: dict = Depends(get_current_user)):
     users = db.query(User).all()
     return users
 
@@ -62,18 +63,22 @@ def register_user(user: UserCreate, db: Session = Depends(get_db_session)):
     db.commit()
     db.refresh(new_user)
 
-    try:
-        send_email(user_data = new_user)
-    except HTTPException as e:
-        print(f"Error sending email: {e.detail}")
+    #email notification service using AWS SES
+    # try:
+    #     send_email(user_data = new_user)
+    # except HTTPException as e:
+    #     print(f"Error sending email: {e.detail}")
 
     return {"msg": "User registered successfully", "email": user.email}
 
 @app.post("/login/")
 def login_user(request: LoginRequest, db: Session = Depends(get_db_session)):
     user = db.query(User).filter(User.email == request.email).first()
-    if not user or not verify_password(request.password, user.password_hash):
+    pw_check = verify_password(request.password, user.password_hash)
+    if not user or not pw_check:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+    
+    token = create_jwt_token(user.email,)
 
-    return {"msg": "Login successful", "email": user.email}
+    return {"msg": "Login successful", "token": token}
 

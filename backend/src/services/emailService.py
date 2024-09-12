@@ -9,7 +9,7 @@ import os
 load_dotenv()
 
 SUBJECT = "API Gateway"
-BODY_TEXT = "Data received from API Gateway"
+BODY_TEXT = "API Gateway test"
 AWS_REGION = os.getenv("AWS_REGION")
 AWS_SECRET_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 AWS_ACCESS_KEY = os.getenv("AWS_ACCESS_KEY_ID") 
@@ -21,11 +21,14 @@ client = boto3.client("ses",
 
 
 
-def send_email( user_data, subject: str = SUBJECT, body: str = BODY_TEXT):
+def send_email( user_data = None, subject: str = SUBJECT, body: str = BODY_TEXT):
 
-    user_info = user_data.to_dict()
-    user_info = json.dumps(user_info)
-    user_info = "Data received from API Gateway:\n" + user_info
+    if user_data:
+        user_info = user_data.to_dict()
+        user_info = json.dumps(user_info)
+        user_info = "Data received from API Gateway:\n" + user_info
+    else:
+        user_info = body
 
     try:
         response = client.send_email(
