@@ -5,6 +5,8 @@ from src.database.database import SessionLocal, init_db, get_db_session
 from src.models.user import User
 from src.services.loginService import hash_password, verify_password
 from src.services.emailService import send_email
+from dotenv import load_dotenv
+
 
 app = FastAPI()
 
@@ -19,7 +21,7 @@ class LoginRequest(BaseModel):
 
 @app.get("/email")
 def test():
-    send_email(send_to="ryanchan321@gmail.com")
+    send_email(send_to="ryanchanenator@gmail.com")
     return 
     
 

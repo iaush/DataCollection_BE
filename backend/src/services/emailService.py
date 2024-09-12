@@ -1,15 +1,15 @@
 import boto3
 from botocore.exceptions import ClientError
 
-AWS_REGION = "ap-southeast-1"
 SENDER = "ryanchanenator@gmail.com"
 SUBJECT = "API Gateway"
 BODY_TEXT = "Data received from API Gateway"
 
-client = boto3.client("ses", region_name=AWS_REGION)
+client = boto3.client("ses")
 
 
-def send_email(subject: str, body: str, send_to: str):
+
+def send_email( send_to: str, subject: str = SUBJECT, body: str = BODY_TEXT):
     try:
         response = client.send_email(
             Destination={"ToAddresses": [send_to,],},

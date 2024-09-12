@@ -5,3 +5,4 @@ pydantic
 bcrypt
 boto3
 psycopg2
+python-dotenv
