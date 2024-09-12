@@ -4,3 +4,4 @@ sqlalchemy
 pydantic
 bcrypt
 boto3
+psycopg2

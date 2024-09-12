@@ -17,7 +17,7 @@ class LoginRequest(BaseModel):
     email: str
     password: str
 
-@app.get("/")
+@app.get("/email")
 def test():
     send_email(send_to="ryanchan321@gmail.com")
     return 

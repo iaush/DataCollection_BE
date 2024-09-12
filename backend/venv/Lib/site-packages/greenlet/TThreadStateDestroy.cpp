@@ -96,6 +96,23 @@ struct ThreadState_DestroyNoGIL
     // Python < 3.8 or >= 3.9
     static int AddPendingCall(int (*func)(void*), void* arg)
     {
+        // If the interpreter is in the middle of finalizing, we can't add a
+        // pending call. Trying to do so will end up in a SIGSEGV, as
+        // Py_AddPendingCall will not be able to get the interpreter and will
+        // try to dereference a NULL pointer. It's possible this can still
+        // segfault if we happen to get context switched, and maybe we should
+        // just always implement our own AddPendingCall, but I'd like to see if
+        // this works first
+#if GREENLET_PY313
+        if (Py_IsFinalizing()) {
+#else
+        if (_Py_IsFinalizing()) {
+#endif
+            fprintf(stderr,
+                    "greenlet: WARNING: Interpreter is finalizing. Ignoring "
+                    "call to Py_AddPendingCall; \n");
+            return 0;
+        }
         return Py_AddPendingCall(func, arg);
     }
 #endif
@@ -122,7 +139,7 @@ struct ThreadState_DestroyNoGIL
 
         // NOTE: Because we're not holding the GIL here, some other
         // Python thread could run and call ``os.fork()``, which would
-        // be bad if that happenend while we are holding the cleanup
+        // be bad if that happened while we are holding the cleanup
         // lock (it wouldn't function in the child process).
         // Make a best effort to try to keep the duration we hold the
         // lock short.
