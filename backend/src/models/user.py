@@ -1,6 +1,8 @@
 from sqlalchemy import create_engine, Column, Integer, String, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from src.database.database import Base
+from pydantic import BaseModel, validator
+import html
 
 class User(Base):
     __tablename__ = "users"
@@ -11,7 +13,7 @@ class User(Base):
     contact_num = Column(Integer, nullable=True)
     company = Column(String(255), nullable=True)
     name = Column(String(255), nullable=True)
-    is_member = Column(Boolean, nullable=True)
+    is_member = Column(Boolean, nullable=True, default=False)
     role = Column(String(50), nullable=True)
 
     def to_dict(self):
