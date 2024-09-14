@@ -20,7 +20,7 @@ client = boto3.client("ses",
                     aws_secret_access_key=AWS_SECRET_KEY)
 
 
-
+#send email to portal admin when new user is registered successfully
 def send_email( user_data = None, subject: str = SUBJECT, body: str = BODY_TEXT):
 
     if user_data:
@@ -32,7 +32,7 @@ def send_email( user_data = None, subject: str = SUBJECT, body: str = BODY_TEXT)
 
     try:
         response = client.send_email(
-            Destination={"ToAddresses": ["ryanchanenator@gmail.com"],},
+            Destination={"ToAddresses": ["ryanchanenator@gmail.com"],}, #destination email for portal admin
             Message={"Body": {"Text": {"Data": user_info,},},
                     "Subject": {"Data": subject,},},
             Source="APIAdmin@ryanchanwy.cyou",

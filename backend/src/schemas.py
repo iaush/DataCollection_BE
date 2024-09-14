@@ -22,7 +22,8 @@ class UserResponse(BaseModel):
     email: str
     company: Optional[str]
     is_member: Optional[bool]
-    contact_num: Optional[str]
+    number : Optional[str]
+    # contact_num: Optional[str]
     name: Optional[str]
     role: Optional[str]
 

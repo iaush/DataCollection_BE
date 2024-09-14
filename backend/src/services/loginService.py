@@ -4,11 +4,19 @@ import datetime
 from src.models.user import User
 from fastapi import HTTPException, Depends, status, Request
 from fastapi.security import OAuth2PasswordBearer
+from dotenv import load_dotenv
+import os
+from cryptography.fernet import Fernet
 
+load_dotenv()
 
-SECRET_KEY = "EDB_Sept2024"
+SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
 
+key = SECRET_KEY.encode()
+
+
+cipher_suite = Fernet(key)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
 
 def hash_password(password: str):
@@ -17,6 +25,12 @@ def hash_password(password: str):
 
 def verify_password(password: str, hashed_password: str):
     return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
+
+def encrypt_phone_number(phone_number: str):
+    return cipher_suite.encrypt(phone_number.encode('utf-8'))
+
+def decrypt_phone_number(encrypted_phone_number: bytes)-> str:
+    return cipher_suite.decrypt(encrypted_phone_number).decode('utf-8')
 
 def create_jwt_token(email: str):
     expire = datetime.datetime.utcnow() + datetime.timedelta(hours=4)  # Default expiration time
