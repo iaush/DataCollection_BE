@@ -8,6 +8,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter()
 
+#login endpoint to authenticate user and return JWT token
 @router.post("/login", description="Login user and returns JWT token for authentication")
 def login_user(response: Response, request: LoginRequest, db: Session = Depends(get_db_session)):
     user = db.query(User).filter(User.email == request.username).first()

@@ -4,6 +4,7 @@ from src.database.database import Base
 from pydantic import BaseModel, validator
 import html
 
+#Base class for the User model
 class User(Base):
     __tablename__ = "users"
 
@@ -16,6 +17,7 @@ class User(Base):
     is_member = Column(Boolean, nullable=True, default=False)
     role = Column(String(50), nullable=True)
 
+    #to return a dictionary of the user object for json response
     def to_dict(self):
         return{
             "id": self.id,

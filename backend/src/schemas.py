@@ -2,6 +2,8 @@ from typing import Optional, List
 from pydantic import BaseModel, validator
 import html
 
+
+#defination of the classes for server side validation of the request body
 class UserCreate(BaseModel):
     email: str
     password: str

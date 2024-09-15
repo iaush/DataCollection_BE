@@ -10,7 +10,7 @@ from typing import List
 router = APIRouter()
 
 
-
+#register a new user, route open to all
 @router.post("/register_user/", description="Register a new user")
 def register_user(user: UserCreate, db: Session = Depends(get_db_session)):
     
@@ -27,6 +27,7 @@ def register_user(user: UserCreate, db: Session = Depends(get_db_session)):
     hashed_password = hash_password(user.password)
     encrypted_contact_num = encrypt_phone_number(str(sanitized_user.contact_num))
 
+    #new user to be added to the database
     new_user = User(
         email=sanitized_user.email, 
         password_hash=hashed_password,
@@ -48,12 +49,12 @@ def register_user(user: UserCreate, db: Session = Depends(get_db_session)):
 
     return {"msg": "User registered successfully", "email": user.email}
 
-
+#route to get all user details except password / number, requires authentication. Can be further restricted to admin role etc
 @router.get("/get_users/", response_model=List[UserResponse], description="Requires authentication, Get all users info from database")
 def get_users(db: Session = Depends(get_db_session), current_user: dict = Depends(get_current_user)):
     users = db.query(User).all()
     
-    #return decrypted phone number if user is authenticated (can further restrict to admin role etc)
+    #return decrypted phone number if user is authenticated
     for user in users:
         user.number = decrypt_phone_number(user.contact_num)
         # print(decrypt_phone_number(user.contact_num))

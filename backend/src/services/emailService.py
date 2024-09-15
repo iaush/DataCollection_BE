@@ -14,6 +14,7 @@ AWS_REGION = os.getenv("AWS_REGION")
 AWS_SECRET_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 AWS_ACCESS_KEY = os.getenv("AWS_ACCESS_KEY_ID") 
 
+# Create a new SES resource 
 client = boto3.client("ses",
                     region_name=AWS_REGION,
                     aws_access_key_id=AWS_ACCESS_KEY,

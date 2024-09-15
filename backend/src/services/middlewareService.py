@@ -4,7 +4,7 @@ import time
 from collections import defaultdict
 from typing import Dict
 
-
+# Rate limiting middleware to limit number of requests in a given time window, based on client IP
 class RateLimitter(BaseHTTPMiddleware):
 
     def __init__(self, app: FastAPI, max_requests: int, time_window: float):
@@ -30,7 +30,8 @@ class RateLimitter(BaseHTTPMiddleware):
         response = await call_next(request)
         return response
     
-
+# Middleware to add security headers to the response, preventing XSS attacks and clickjacking etc. 
+# Need to allow unsafe-inline for swagger ui to display
 class XSSMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
         response = await call_next(request)

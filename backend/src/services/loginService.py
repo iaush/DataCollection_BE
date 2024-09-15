@@ -19,25 +19,31 @@ key = SECRET_KEY.encode()
 cipher_suite = Fernet(key)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
 
+#hash password using bcrypt to store in database
 def hash_password(password: str):
     salt = bcrypt.gensalt()
     return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
 
+#verify password based on hashed password in database
 def verify_password(password: str, hashed_password: str):
     return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
 
+#encrypt phone number since potentially sensitive information
 def encrypt_phone_number(phone_number: str):
     return cipher_suite.encrypt(phone_number.encode('utf-8'))
 
+#decrypt phone number to display to authenticated user
 def decrypt_phone_number(encrypted_phone_number: bytes)-> str:
     return cipher_suite.decrypt(encrypted_phone_number).decode('utf-8')
 
+#generate JWT token for authentication
 def create_jwt_token(email: str):
     expire = datetime.datetime.utcnow() + datetime.timedelta(hours=4)  # Default expiration time
     to_encode = {"exp": expire, "sub": email}
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+#decode JWT token to authenticate user is in the system
 def decode_jwt_token(token: str):
     try:
         decoded_token = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -47,7 +53,7 @@ def decode_jwt_token(token: str):
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
     
-    
+#retrieve current user based on JWT token and check if it is valid
 def get_current_user(request: Request):
 
     token = None
